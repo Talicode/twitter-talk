@@ -11,17 +11,23 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:twitterTalk.start"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
-            {
-                "command": "extension.sayHello",
-                "title": "Hello World"
-            }
+          {
+            "command": "twitterTalk.start",
+            "title": "Send a new tweet!",
+            "category": "Twitter Talk"
+          },
+          {
+            "command": "twitterTalk.doRefactor",
+            "title": "Do some refactoring",
+            "category": "Twitter Talk"
+          }
         ]
-    },
+      },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
