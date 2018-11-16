@@ -4,6 +4,7 @@
     "description": "Simple extension that posts a tweet to twitter.",
     "version": "0.0.1",
     "publisher": "talicode",
+    "private": true,
     "engines": {
         "vscode": "^1.29.0"
     },
@@ -16,18 +17,18 @@
     "main": "./out/extension",
     "contributes": {
         "commands": [
-          {
-            "command": "twitterTalk.start",
-            "title": "Send a new tweet!",
-            "category": "Twitter Talk"
-          },
-          {
-            "command": "twitterTalk.doRefactor",
-            "title": "Do some refactoring",
-            "category": "Twitter Talk"
-          }
+            {
+                "command": "twitterTalk.start",
+                "title": "Send a new tweet!",
+                "category": "Twitter Talk"
+            },
+            {
+                "command": "twitterTalk.doRefactor",
+                "title": "Do some refactoring",
+                "category": "Twitter Talk"
+            }
         ]
-      },
+    },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
@@ -36,10 +37,15 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.21",
-        "tslint": "^5.8.0",
+        "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.21"
+    },
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Talicode/twitter-talk.git"
     }
 }

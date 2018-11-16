@@ -2,6 +2,7 @@
 // Import the necessary extensibility types to use in your code below
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as $ from 'jquery';
 
 /* NOT WORKING for now, come back to later
 const shelties = {
@@ -27,6 +28,10 @@ export function activate(context: vscode.ExtensionContext) {
     // TODO base all the media resources on the above mediaPath
     const boneSheltie = vscode.Uri.file(path.join(context.extensionPath, 'media', 'bone.gif'));
     const boneSheltieSrc =  boneSheltie.with({scheme: 'vscode-resource'}).toString();
+    // Javascript file
+    // TODO link the javascript file here
+    const jScripts = vscode.Uri.file(path.join(context.extensionPath, 'src', 'scripts.js'));
+    const jScriptsSource = jScripts.with({scheme: 'vscode-resource'}).toString();
 
     // WEBVIEW SETUP
     // Only allow a single webview to exist at a time. If it's in the background, then bring it to the foreground
@@ -60,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
             );
 
-            currentPanel.webview.html = getWebviewContent(boneSheltieSrc);
+            currentPanel.webview.html = getWebviewContent(boneSheltieSrc,jScriptsSource);
 
             /* Not working for now, testing URI conversions
             // Update contents based on view state changes
@@ -108,7 +113,7 @@ function updateWebviewBySheltie(panel: vscode.WebviewPanel, sheltieAction: keyof
 }
 */
 
-function getWebviewContent(imgSrc: string){
+function getWebviewContent(imgSrc: string, scriptSrc: string){
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -116,16 +121,69 @@ function getWebviewContent(imgSrc: string){
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Twitter Talk</title>
 
-        // <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
+        <!-- TODO: A more sane content security policy, but it breaks embedded scripts
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
+        -->
     </head>
     <body>
+        <div id="mainform">
+        <h2>Send a Tweet!</h2>
+        <!-- Form Div starts here -->
+        <form id="form">
+            <h3>Contact Form</h3>
+            <p id="returnmessage"></p>
+            <label>Name: <span>*</span></label>
+            <input type="text" id="name" placeholder="Name"/>
+            <label>Email: <span>*</span></label>
+            <input type="text" id="email" placeholder="Email"/>
+            <label>Contact No: <span>*</span></label>
+            <input type="text" id="contact" placeholder="10 digit Mobile no."/>
+            <label>Message:</label>
+            <textarea id="message" placeholder="Message......."></textarea>
+            <input type="button" id="submit" value="Send Message"/>
+        </form>
+        </div>
+
+        <script>
+        $(document).ready(function() {
+            $("#submit").click(function() {
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var message = $("#message").val();
+            var contact = $("#contact").val();
+            $("#returnmessage").empty(); // To empty previous error/success message.
+            // Checking for blank fields.
+            if (name == '' || email == '' || contact == '') {
+            alert("Please Fill Required Fields");
+            } else {
+            // Returns successful data submission message when the entered information is stored in database.
+            $.post("", { // TODO MAKE POST FUNCTION DO SOMETHING
+            name1: name,
+            email1: email,
+            message1: message,
+            contact1: contact
+            }, function(data) {
+            $("#returnmessage").append(data); // Append returned message to message paragraph.
+            if (data == "Your Query has been received, We will contact you soon.") {
+            $("#form")[0].reset(); // To reset form fields on success.
+            }
+            });
+            }
+            });
+        });   
+        </script>
+
+        <!-- below contents are for testing purposes to see what I break while working -->
         <img src="${imgSrc}" width="300" />
 
         <h1 id="lines-of-code-counter">0</h1>
 
+        <!-- Not working just yet, trying to get external scripts to load -->
+        <script src="${scriptSrc}" type="text/javascript"></script>
+
         <script>
             const counter = document.getElementById('lines-of-code-counter');
-    
+                
             let count = 0;
             // TODO: This count seems to increment forever, want it to stop at 100
             setInterval(() => {
