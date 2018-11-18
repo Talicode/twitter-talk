@@ -19,12 +19,17 @@
         "commands": [
             {
                 "command": "twitterTalk.start",
-                "title": "Send a new tweet!",
+                "title": "Enter a new tweet!",
                 "category": "Twitter Talk"
             },
             {
-                "command": "twitterTalk.doRefactor",
-                "title": "Do some refactoring",
+                "command": "twitterTalk.test",
+                "title": "Send a completely generic test tweet",
+                "category": "Twitter Talk"
+            },
+            {
+                "command": "twitterTalk.refactor",
+                "title": "Change background color as a message passing test",
                 "category": "Twitter Talk"
             }
         ]
@@ -43,7 +48,9 @@
         "typescript": "^2.6.1",
         "vscode": "^1.1.21"
     },
-    "dependencies": {},
+    "dependencies": {
+        "twitter": "^1.7.1"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/Talicode/twitter-talk.git"

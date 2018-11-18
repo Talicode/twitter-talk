@@ -3,14 +3,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-/* NOT WORKING for now, come back to later
-const shelties = {
-    'Bone Sheltie': vscode.Uri,
-    'Swing Sheltie': vscode.Uri,
-    'Treadmill Sheltie': vscode.Uri,
-    'Scritch Sheltie': vscode.Uri
+// Twitter API dependencies
+var Twitter = require ('twitter');
+var config = {
+    consumer_key: 'ywQwRkPfD1kVZ9Mt2qvpyL7IZ',
+    consumer_secret: 'i8Cu8luqfkZLvJ4nQhLPWPb2ZKEJHmYBwS1uTOK5oVGLdN288L',
+    access_token_key: '1063903850451496961-uiqBuH4a04hptUmm3oLyPLdxNvuOd9',
+    access_token_secret: 'eC00lVtWNRWpvU33KWoC0XenKTlVf2OKaAvyrd8GqmjMA'
 };
-*/
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -20,6 +20,12 @@ export function activate(context: vscode.ExtensionContext) {
     // Use the console to output diagnostic information (console.log) and errors (console.error).
     // This line of code will only be executed once when your extension is activated.
     console.log('Congratulations, your extension "Twitter Talk" is now active!');
+
+    // Set up a twitter client
+    // Learning from this resource https://github.com/austin-----/vscode-twitter
+    // But trying to build simply from this one https://codeburst.io/build-a-simple-twitter-bot-with-node-js-in-just-38-lines-of-code-ed92db9eb078
+    // And this resource https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
+   var T = new Twitter(config);
     
     // Path to media resources on disk
     const mediaPath = vscode.Uri.file(path.join(context.extensionPath, 'media'));
@@ -27,7 +33,12 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize media resources
     const twitterLogo = vscode.Uri.file(path.join(context.extensionPath, 'media', 'Twitter_Logo_Blue.svg'));
     const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
-    // TODO link the javascript & css file
+    // TODO link the javascript & css to an external file
+
+    // TEST TWEET COMMAND SETUP
+    let disposable = vscode.commands.registerCommand('twitterTalk.test', () => {
+        postTweet('This is a test tweet', T);
+    });
 
     // WEBVIEW SETUP
     // Only allow a single webview to exist at a time. If it's in the background, then bring it to the foreground
@@ -63,26 +74,6 @@ export function activate(context: vscode.ExtensionContext) {
 
             currentPanel.webview.html = getWebviewContent(twitterLogoSrc);
 
-            /* Not working for now, testing URI conversions
-            // Update contents based on view state changes
-            currentPanel.onDidChangeViewState(e => {
-                const currentPanel = e.webviewPanel;
-                switch (currentPanel.viewColumn){
-                    case vscode.ViewColumn.One:
-                    updateWebviewBySheltie(currentPanel, 'Bone Sheltie');
-                    return;
-
-                    case vscode.ViewColumn.Two:
-                    updateWebviewBySheltie(currentPanel, 'Swing Sheltie');
-                    return;
-
-                    case vscode.ViewColumn.Three:
-                    updateWebviewBySheltie(currentPanel, 'Treadmill Sheltie');
-                    return;      
-                }
-            });
-            */
-
             // Reset when current panel is closed
             currentPanel.onDidDispose(() => {
                 currentPanel = undefined;
@@ -90,6 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         // Listener for messages posted back to webview
+        // TODO: connect this with the form, and then the tweet post
         currentPanel.webview.onDidReceiveMessage(e => {
             vscode.window.showInformationMessage('Recieved a message from client JS!');
             console.log(e);
@@ -97,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     // Pass message from an extension to a webview to refactor (reduce the count)
-    context.subscriptions.push(vscode.commands.registerCommand('twitterTalk.doRefactor', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('twitterTalk.refactor', () => {
         if(!currentPanel){
             return;
         }
@@ -106,14 +98,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     }));
 
+    // Collect disposibles
+    context.subscriptions.push(disposable);
 }
-
-/*
-function updateWebviewBySheltie(panel: vscode.WebviewPanel, sheltieAction: keyof typeof shelties){
-    panel.title = sheltieAction;
-    panel.webview.html = getWebviewContent(sheltieAction);
-}
-*/
 
 function getWebviewContent(imgSrc: string){
     return `<!DOCTYPE html>
@@ -168,7 +155,7 @@ function getWebviewContent(imgSrc: string){
                 display: inline-block;
                 background-color: #38A1F3;
                 border: none;
-                padding: 10px;
+                padding: 10px; margin-top: 2px; margin-bottom: 2px;
                 box-sizing: border-box;
             }
             p {
@@ -189,7 +176,7 @@ function getWebviewContent(imgSrc: string){
     </head>
     <body>
 
-        <div class="box">
+        <div class="box" id="tweet-box">
             <h2>Send a Tweet!</h2>
             <img src="${imgSrc}" width="300" />
 
@@ -218,7 +205,44 @@ function getWebviewContent(imgSrc: string){
         }
         </script>
 
+        <script language="javascript">
+        // In this case the refactor test is sending a message from the extension to the webview
+        //  and set the background color to grey
+
+        // Handle the message inside the window
+        window.addEventListener('message', event => {
+            const message = event.data // JSON data sent
+            switch(message.command){
+                case 'refactor':
+                    let darkBlueColor = "#000033";
+                    let bgColor = document.getElementById("tweet-box").style.backgroundColor;
+                    if(bgColor == darkBlueColor)
+                    {
+                        //TODO: fix this so it works, not being set transparent, or not comparing properly
+                        document.getElementById("tweet-box").style.backgroundColor = "transparent";
+                    } else {
+                        document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
+                    }
+                    break;
+            }
+        })
+        </script>
+
     </body>
     
     </html>`;
+}
+
+function postTweet(stringMsg: string, twit: any){
+    vscode.window.showInformationMessage('Preparing tweet: ' + stringMsg);
+    var tweet = { status: stringMsg }; // The tweet message
+    twit.post('statuses/update', tweet, tweeted);
+}
+//Callback function which does something whether or not tweeted post was successful
+function tweeted(err: string, data: string, response: any){
+    if(err){
+        vscode.window.showInformationMessage('Tweeted: Something went wrong!');
+    } else {
+        vscode.window.showInformationMessage('Tweeted: You tweeted!');
+    }
 }
