@@ -3,14 +3,54 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+/* -------------------------------------------------------------------------------------
+ * Twitter-Talk: Visual Studio Code Extension in typescript and Node.js which sends tweets.
+ * coder: Anya talisancreations@gmail.com   date: 11.18.18  twitter: @talicode
+ * github: https://github.com/Talicode/twitter-talk
+ * 
+ * There are three commands
+ * 
+ * Twitter Talk: Enter a new tweet!
+ *   Begins the extension and opens the webview, displays a form which the user can enter a message
+ *   Test the message by hitting "Preview Message" which will print it below the box
+ *   TODO: Post message to twitter (post function not connected to onDidReceiveMessage)
+ * 
+ * Twitter Talk: Send a random length test tweet
+ *   Creates a random string of words and tweets the string
+ * 
+ * Twitter Talk: Change background color as a message passing test
+ *   Activate command to change the background of the tweet box as a test of passing
+ *   a message from the extension to the webview
+ *   TODO: Make the command toggle between colored and transparent
+ *   
+ * -------------------------------------------------------------------------------------
+ * Planned Improvements
+ * Offload the HTML/JS/CSS into their own files and import them for the webview
+ * Restructure the credentials, twitter functionality, aux functions their own file
+ * -------------------------------------------------------------------------------------
+ * Helpful Resources:
+ * Visual Studio Code Extension Examples https://code.visualstudio.com/docs/extensions/samples
+ * Visual Studio Code Webview API https://code.visualstudio.com/docs/extensions/webview
+ * Visual Studio Code extension API https://code.visualstudio.com/docs/extensionAPI/vscode-api
+ * Twitter API https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
+ * DZone - How to use Twitter API With Node.js https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
+ * Working On:
+ * Stack Overflow - Pass Variables from Javascript to Node.js
+ *   https://stackoverflow.com/questions/27238231/pass-variables-from-javascript-to-node-js
+ * How to use CSS Modules with Typescript and webpack
+ *   https://medium.com/@sapegin/css-modules-with-typescript-and-webpack-6b221ebe5f10
+ * Setting up Visual Studio Code - HTML CSS and Javascript settings
+ *   https://zellwk.com/blog/vscode-2/
+ * DZone - Learn jQuery in 4 Steps https://dzone.com/articles/4-steps-to-learn-jquery-for-beginners
+ * Stack Overflow - Use HTML files in Visual Studio Code extension development
+ *   https://stackoverflow.com/questions/51236058/use-html-files-in-visual-studio-code-extension-development/51332941
+ * -------------------------------------------------------------------------------------*/
+
 // Twitter API dependencies
 var Twitter = require ('twitter');
-var config = {
-    consumer_key: 'ywQwRkPfD1kVZ9Mt2qvpyL7IZ',
-    consumer_secret: 'i8Cu8luqfkZLvJ4nQhLPWPb2ZKEJHmYBwS1uTOK5oVGLdN288L',
-    access_token_key: '1063903850451496961-uiqBuH4a04hptUmm3oLyPLdxNvuOd9',
-    access_token_secret: 'eC00lVtWNRWpvU33KWoC0XenKTlVf2OKaAvyrd8GqmjMA'
-};
+// Credientials connect to @talicode
+import {Config} from "./config";
+const config: Config = require('../src/config.json');
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
@@ -24,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Set up a twitter client
     // Learning from this resource https://github.com/austin-----/vscode-twitter
     // But trying to build simply from this one https://codeburst.io/build-a-simple-twitter-bot-with-node-js-in-just-38-lines-of-code-ed92db9eb078
-    // And this resource https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
+    // This was the most helpful https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
    var T = new Twitter(config);
     
     // Path to media resources on disk
@@ -37,7 +77,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // TEST TWEET COMMAND SETUP
     let disposable = vscode.commands.registerCommand('twitterTalk.test', () => {
-        postTweet('This is a test tweet', T);
+        // This needed to be dynamically created as twitter will reject identical tweets
+        let randomMessage = generateRandomWords();
+        postTweet(randomMessage, T);
     });
 
     // WEBVIEW SETUP
@@ -56,7 +98,8 @@ export function activate(context: vscode.ExtensionContext) {
             currentPanel = vscode.window.createWebviewPanel(
             'twitterTalk', // Identifies the type of webview. Used internally
             "Twitter Talk", // Title of the panel displayed to the user
-            //TODO: This won't accept columnToShowIn for some reason, hard coded to One as a temporary solution until I figure it out
+            //TODO: This won't accept a dynamically set columnToShowIn for some reason (maybe the possibly undefined issue), 
+            // hard coded to One as a temporary solution until I figure it out
             vscode.ViewColumn.One, // Editor column to show the new webview panel in 
             
             { // Webview options
@@ -98,9 +141,13 @@ export function activate(context: vscode.ExtensionContext) {
 
     }));
 
-    // Collect disposibles
+    // Collect disposibles - this is for the twitterTalk.test extension command
     context.subscriptions.push(disposable);
 }
+
+/* WEBVIEW METHOD
+ *
+ */
 
 function getWebviewContent(imgSrc: string){
     return `<!DOCTYPE html>
@@ -165,6 +212,10 @@ function getWebviewContent(imgSrc: string){
             }
         </style>
 
+        <!-- Not used just yet, jQuery for form support
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        -->
+
         <!-- Not working just yet, trying to get external scripts to load
         <script src="./scripts.js" type="text/javascript"></script>
         -->
@@ -183,12 +234,12 @@ function getWebviewContent(imgSrc: string){
             <!-- Form starts here -->
             <h3>Message:</h3>
             <textarea id="message" placeholder="140 characters or fewer"></textarea>
-            <button onClick="submit()">Send Message</button>
+            <button onClick="submit()">Preview Message</button>
 
             <!-- Form for testing Node.js value passing -->
             <form method="post" action="/">
                 <input type="hidden" name="testVariable" value="this is passing from the webview to Node.js">
-                <input type="submit" name="submit" value="Submit"
+                <input type="submit" name="submit" value="Post Message"
             </form>
         </div>
 
@@ -218,7 +269,7 @@ function getWebviewContent(imgSrc: string){
                     let bgColor = document.getElementById("tweet-box").style.backgroundColor;
                     if(bgColor == darkBlueColor)
                     {
-                        //TODO: fix this so it works, not being set transparent, or not comparing properly
+                        //TODO: fix this so it works. Currently not being set transparent, or not comparing properly
                         document.getElementById("tweet-box").style.backgroundColor = "transparent";
                     } else {
                         document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
@@ -233,16 +284,38 @@ function getWebviewContent(imgSrc: string){
     </html>`;
 }
 
+/* TWITTER METHODS
+ *
+ */
+
 function postTweet(stringMsg: string, twit: any){
     vscode.window.showInformationMessage('Preparing tweet: ' + stringMsg);
     var tweet = { status: stringMsg }; // The tweet message
     twit.post('statuses/update', tweet, tweeted);
 }
-//Callback function which does something whether or not tweeted post was successful
+//Callback function which responds depending on whether the tweet was successful or not
 function tweeted(err: string, data: string, response: any){
     if(err){
         vscode.window.showInformationMessage('Tweeted: Something went wrong!');
     } else {
         vscode.window.showInformationMessage('Tweeted: You tweeted!');
     }
+}
+
+// This function generates a string containing a set of random words from 3 to 7 from this list
+function generateRandomWords() : string {
+    var random_words:string[] = [
+        "kill", "arrogant", "scarecrow", "crazy", "replace", 
+        "twist", "reach", "ground", "astonishing", "angry", 
+        "nonchalant", "billowy", "burly", "month", "bat",
+        "wholesale", "bed", "faithful", "rain", "narrow",
+        "fresh", "decorate", "room", "excite", "original"
+    ];
+    var randomString = "";
+    var n:number = Math.floor(Math.random()*5)+3;
+    do {
+        randomString = randomString + " " + random_words[Math.floor(Math.random()*random_words.length)];
+        n--;
+    } while (n > 0);
+    return randomString;
 }

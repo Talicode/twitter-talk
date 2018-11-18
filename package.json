@@ -24,7 +24,7 @@
             },
             {
                 "command": "twitterTalk.test",
-                "title": "Send a completely generic test tweet",
+                "title": "Send a random length test tweet",
                 "category": "Twitter Talk"
             },
             {
