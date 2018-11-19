@@ -49,6 +49,7 @@ import * as path from 'path';
 // Twitter API dependencies
 var Twitter = require ('twitter');
 // Credientials connect to @talicode
+// Used this resource https://stackoverflow.com/questions/41467801/how-to-create-an-application-specific-config-file-for-typescript
 import {Config} from "./config";
 const config: Config = require('../src/config.json');
 
@@ -124,10 +125,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         // Listener for messages posted back to webview
-        // TODO: connect this with the form, and then the tweet post
         currentPanel.webview.onDidReceiveMessage(e => {
-            vscode.window.showInformationMessage('Recieved a message from client JS!');
-            console.log(e);
+        //    console.log(e);
+            switch(e.command){
+                case 'message':
+                // This is a tweet from the webform
+                    postTweet(e.text, T);
+            }
         });
     }));
 
@@ -234,13 +238,8 @@ function getWebviewContent(imgSrc: string){
             <!-- Form starts here -->
             <h3>Message:</h3>
             <textarea id="message" placeholder="140 characters or fewer"></textarea>
-            <button onClick="submit()">Preview Message</button>
+            <button onClick="submit()">Send Tweet!</button>
 
-            <!-- Form for testing Node.js value passing -->
-            <form method="post" action="/">
-                <input type="hidden" name="testVariable" value="this is passing from the webview to Node.js">
-                <input type="submit" name="submit" value="Post Message"
-            </form>
         </div>
 
         <h2>Message is:</h2>
@@ -248,19 +247,28 @@ function getWebviewContent(imgSrc: string){
         <p id="message-text">No message entered</p>
     
         <script language="javascript">
+        // PREVIEW MESSAGE TEXT
+        const vscode = acquireVsCodeApi();
         const text = document.getElementById('message-text');
         //TODO sanitize content
         //TODO limit the length to 140 characters
         function submit(){
             text.textContent = document.getElementById("message").value;
+            vscode.postMessage({command: 'message', text: text.textContent});
         }
         </script>
 
         <script language="javascript">
+        // SEND MESSAGE FROM WEBVIEW TO EXTENSION
+
+        </script>
+
+        <script language="javascript">
+        // BACKGROUND COLOR CHANGER - MESSAGE SENT FROM EXTENSION
         // In this case the refactor test is sending a message from the extension to the webview
         //  and set the background color to grey
 
-        // Handle the message inside the window
+        // Handle the message sent from extension to webview inside the window
         window.addEventListener('message', event => {
             const message = event.data // JSON data sent
             switch(message.command){
@@ -289,16 +297,16 @@ function getWebviewContent(imgSrc: string){
  */
 
 function postTweet(stringMsg: string, twit: any){
-    vscode.window.showInformationMessage('Preparing tweet: ' + stringMsg);
     var tweet = { status: stringMsg }; // The tweet message
+    //TODO sanitize content
     twit.post('statuses/update', tweet, tweeted);
 }
 //Callback function which responds depending on whether the tweet was successful or not
 function tweeted(err: string, data: string, response: any){
     if(err){
-        vscode.window.showInformationMessage('Tweeted: Something went wrong!');
+        vscode.window.showInformationMessage('Twitter Talk: Something went wrong!');
     } else {
-        vscode.window.showInformationMessage('Tweeted: You tweeted!');
+        vscode.window.showInformationMessage('Twitter Talk: You tweeted!');
     }
 }
 
