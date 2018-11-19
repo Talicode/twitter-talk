@@ -1,5 +1,5 @@
 // The module 'vscode' contains the VS Code extensibility API
-// Import the necessary extensibility types to use in your code below
+// Import the necessary extensibility types
 import * as vscode from 'vscode';
 import * as path from 'path';
 
@@ -12,11 +12,10 @@ import * as path from 'path';
  * 
  * Twitter Talk: Enter a new tweet!
  *   Begins the extension and opens the webview, displays a form which the user can enter a message
- *   Test the message by hitting "Preview Message" which will print it below the box
- *   TODO: Post message to twitter (post function not connected to onDidReceiveMessage)
+ *   Clicking Send Tweet! will send the concents of the text box as a tweet and print it below the box
  * 
  * Twitter Talk: Send a random length test tweet
- *   Creates a random string of words and tweets the string
+ *   Creates a random string of (3-7) words and tweets the string
  * 
  * Twitter Talk: Change background color as a message passing test
  *   Activate command to change the background of the tweet box as a test of passing
@@ -26,7 +25,7 @@ import * as path from 'path';
  * -------------------------------------------------------------------------------------
  * Planned Improvements
  * Offload the HTML/JS/CSS into their own files and import them for the webview
- * Restructure the credentials, twitter functionality, aux functions their own file
+ * Scrub the imput box, fix the background color toggle
  * -------------------------------------------------------------------------------------
  * Helpful Resources:
  * Visual Studio Code Extension Examples https://code.visualstudio.com/docs/extensions/samples
@@ -46,14 +45,20 @@ import * as path from 'path';
  *   https://stackoverflow.com/questions/51236058/use-html-files-in-visual-studio-code-extension-development/51332941
  * -------------------------------------------------------------------------------------*/
 
-// Twitter API dependencies
+// ------- Twitter API files ----------
 var Twitter = require ('twitter');
-// Credientials connect to @talicode
 // Used this resource https://stackoverflow.com/questions/41467801/how-to-create-an-application-specific-config-file-for-typescript
 import {Config} from "./config";
+// JSON file is credientials connecting to @talicode
 const config: Config = require('../src/config.json');
+// Methods for handling tweets
+import {TweetHandlers} from './tweetHandlers';
 
-// This method is called when your extension is activated. Activation is
+// --------- Webview setup files ----------
+import {WebviewHtml} from './webviewHtml';
+
+// ------------------ Extension Activation Method ----------------------
+// This method is called when the extension is activated. Activation is
 // controlled by the activation events defined in package.json.
 
 export function activate(context: vscode.ExtensionContext) {
@@ -76,11 +81,11 @@ export function activate(context: vscode.ExtensionContext) {
     const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
     // TODO link the javascript & css to an external file
 
-    // TEST TWEET COMMAND SETUP
+    // COMMAND: RANDOM TEST TWEET
     let disposable = vscode.commands.registerCommand('twitterTalk.test', () => {
         // This needed to be dynamically created as twitter will reject identical tweets
-        let randomMessage = generateRandomWords();
-        postTweet(randomMessage, T);
+        let randomMessage = TweetHandlers.generateRandomWords();
+        TweetHandlers.postTweet(randomMessage, T);
     });
 
     // WEBVIEW SETUP
@@ -89,6 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Track current webview panel
     let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
+    // COMMAND: START TWITTER TALK AND LOAD WEBVIEW
     context.subscriptions.push(vscode.commands.registerCommand('twitterTalk.start', () => {
         const columnToShowIn = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
         if (currentPanel){
@@ -116,7 +122,9 @@ export function activate(context: vscode.ExtensionContext) {
             }
             );
 
-            currentPanel.webview.html = getWebviewContent(twitterLogoSrc);
+            // Having to pass in each media file to the webview is problematic
+            // TODO: restructure to be able to import from the filesystem in webviewHtml directly
+            currentPanel.webview.html = WebviewHtml.getWebviewContent(twitterLogoSrc);
 
             // Reset when current panel is closed
             currentPanel.onDidDispose(() => {
@@ -130,11 +138,12 @@ export function activate(context: vscode.ExtensionContext) {
             switch(e.command){
                 case 'message':
                 // This is a tweet from the webform
-                    postTweet(e.text, T);
+                TweetHandlers.postTweet(e.text, T);
             }
         });
     }));
 
+    // COMMAND: MESSAGE FROM EXTENSION TO WEBVIEW
     // Pass message from an extension to a webview to refactor (reduce the count)
     context.subscriptions.push(vscode.commands.registerCommand('twitterTalk.refactor', () => {
         if(!currentPanel){
@@ -147,183 +156,4 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Collect disposibles - this is for the twitterTalk.test extension command
     context.subscriptions.push(disposable);
-}
-
-/* WEBVIEW METHOD
- *
- */
-
-function getWebviewContent(imgSrc: string){
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Twitter Talk</title>
-        <!-- TODO: Change to external file. This doesn't work, embedding styles for now 
-        <link rel="stylesheet" href="./style.css"> -->
-        <style>
-            h1 {
-                color: blue;
-                text-align: center;
-            }
-            h2 {
-                text-align: center;
-                margin: 0px;
-                padding: 10px;
-            }
-            img {
-                width: 80%;
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            div.box {
-                width: 40%;
-                margin: 0 auto;
-                padding: 10px;
-                border: 1px solid #38A1F3;
-            }
-            textarea {
-                width: 100%;
-                display: inline-block;
-                margin: 0px;
-                padding: 10px;
-                box-sizing: border-box;
-            }
-            input {
-                width: 100%;
-                font-size: 150%; 
-                display: inline-block;
-                background-color: #38A1F3;
-                border: none;
-                padding: 10px;
-                box-sizing: border-box;                
-            }
-            button {
-                width: 100%;
-                font-size: 150%; 
-                display: inline-block;
-                background-color: #38A1F3;
-                border: none;
-                padding: 10px; margin-top: 2px; margin-bottom: 2px;
-                box-sizing: border-box;
-            }
-            p {
-                width: 40%;
-                margin: 0 auto;
-                padding: 10px;
-            }
-        </style>
-
-        <!-- Not used just yet, jQuery for form support
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-        -->
-
-        <!-- Not working just yet, trying to get external scripts to load
-        <script src="./scripts.js" type="text/javascript"></script>
-        -->
-
-        <!-- TODO: A more sane content security policy, but it breaks embedded scripts
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
-        -->
-
-    </head>
-    <body>
-
-        <div class="box" id="tweet-box">
-            <h2>Send a Tweet!</h2>
-            <img src="${imgSrc}" width="300" />
-
-            <!-- Form starts here -->
-            <h3>Message:</h3>
-            <textarea id="message" placeholder="140 characters or fewer"></textarea>
-            <button onClick="submit()">Send Tweet!</button>
-
-        </div>
-
-        <h2>Message is:</h2>
-
-        <p id="message-text">No message entered</p>
-    
-        <script language="javascript">
-        // PREVIEW MESSAGE TEXT
-        const vscode = acquireVsCodeApi();
-        const text = document.getElementById('message-text');
-        //TODO sanitize content
-        //TODO limit the length to 140 characters
-        function submit(){
-            text.textContent = document.getElementById("message").value;
-            vscode.postMessage({command: 'message', text: text.textContent});
-        }
-        </script>
-
-        <script language="javascript">
-        // SEND MESSAGE FROM WEBVIEW TO EXTENSION
-
-        </script>
-
-        <script language="javascript">
-        // BACKGROUND COLOR CHANGER - MESSAGE SENT FROM EXTENSION
-        // In this case the refactor test is sending a message from the extension to the webview
-        //  and set the background color to grey
-
-        // Handle the message sent from extension to webview inside the window
-        window.addEventListener('message', event => {
-            const message = event.data // JSON data sent
-            switch(message.command){
-                case 'refactor':
-                    let darkBlueColor = "#000033";
-                    let bgColor = document.getElementById("tweet-box").style.backgroundColor;
-                    if(bgColor == darkBlueColor)
-                    {
-                        //TODO: fix this so it works. Currently not being set transparent, or not comparing properly
-                        document.getElementById("tweet-box").style.backgroundColor = "transparent";
-                    } else {
-                        document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
-                    }
-                    break;
-            }
-        })
-        </script>
-
-    </body>
-    
-    </html>`;
-}
-
-/* TWITTER METHODS
- *
- */
-
-function postTweet(stringMsg: string, twit: any){
-    var tweet = { status: stringMsg }; // The tweet message
-    //TODO sanitize content
-    twit.post('statuses/update', tweet, tweeted);
-}
-//Callback function which responds depending on whether the tweet was successful or not
-function tweeted(err: string, data: string, response: any){
-    if(err){
-        vscode.window.showInformationMessage('Twitter Talk: Something went wrong!');
-    } else {
-        vscode.window.showInformationMessage('Twitter Talk: You tweeted!');
-    }
-}
-
-// This function generates a string containing a set of random words from 3 to 7 from this list
-function generateRandomWords() : string {
-    var random_words:string[] = [
-        "kill", "arrogant", "scarecrow", "crazy", "replace", 
-        "twist", "reach", "ground", "astonishing", "angry", 
-        "nonchalant", "billowy", "burly", "month", "bat",
-        "wholesale", "bed", "faithful", "rain", "narrow",
-        "fresh", "decorate", "room", "excite", "original"
-    ];
-    var randomString = "";
-    var n:number = Math.floor(Math.random()*5)+3;
-    do {
-        randomString = randomString + " " + random_words[Math.floor(Math.random()*random_words.length)];
-        n--;
-    } while (n > 0);
-    return randomString;
 }
