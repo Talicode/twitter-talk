@@ -1,3 +1,6 @@
+import * as vscode from 'vscode';
+import * as path from 'path';
+
 /* WEBVIEW METHOD
  * There is only one function that is a string html file setting up the webview
  * TODO: restructure so that the getWebviewContent function takes no arguments,
@@ -8,7 +11,17 @@
 
 export namespace WebviewHtml {
 
-    export function getWebviewContent(imgSrc: string){
+    export function getWebviewContent(mediaPath: string){
+    // All media resources are based on the past mediaPath
+    // Note that all will have to be appended with '/' and the file name
+    // Then processed into vscode-resource before being valid
+
+    // Initialize media resources
+    const twitterLogo = vscode.Uri.file(path.join(mediaPath, '/Twitter_Logo_Blue.svg'));
+    const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
+
+    // TODO link the javascript & css to an external file
+
         return `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -84,7 +97,7 @@ export namespace WebviewHtml {
 
             <div class="box" id="tweet-box">
                 <h2>Send a Tweet!</h2>
-                <img src="${imgSrc}" width="300" />
+                <img src="${twitterLogoSrc}" width="300" />
 
                 <!-- Form starts here -->
                 <h3>Message:</h3>

@@ -67,20 +67,20 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated.
     console.log('Congratulations, your extension "Twitter Talk" is now active!');
 
+    // Path to media resources for the HTML Webview on disk
+    const mediaPath = path.join(context.extensionPath, 'media');
+    console.log('In extension.ts mediaPath is:' + mediaPath);
+
+    const twitterLogo = vscode.Uri.file(path.join(context.extensionPath, 'media', 'Twitter_Logo_Blue.svg'));
+    const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
+    console.log('In Extension.ts: ' + twitterLogoSrc);
+
     // Set up a twitter client
     // Learning from this resource https://github.com/austin-----/vscode-twitter
     // But trying to build simply from this one https://codeburst.io/build-a-simple-twitter-bot-with-node-js-in-just-38-lines-of-code-ed92db9eb078
     // This was the most helpful https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
    var T = new Twitter(config);
     
-    // Path to media resources on disk
-    const mediaPath = vscode.Uri.file(path.join(context.extensionPath, 'media'));
-    // TODO base all the media resources on the above mediaPath
-    // Initialize media resources
-    const twitterLogo = vscode.Uri.file(path.join(context.extensionPath, 'media', 'Twitter_Logo_Blue.svg'));
-    const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
-    // TODO link the javascript & css to an external file
-
     // COMMAND: RANDOM TEST TWEET
     let disposable = vscode.commands.registerCommand('twitterTalk.test', () => {
         // This needed to be dynamically created as twitter will reject identical tweets
@@ -112,8 +112,8 @@ export function activate(context: vscode.ExtensionContext) {
             { // Webview options
                 // Only allow webview to access resources in the media directory
                 localResourceRoots: [
-                    //TODO change this to the genericised single source when I figure out how
-                    mediaPath
+                    //Restrict local resources to below locations
+                    vscode.Uri.file(mediaPath)
                 ],
                 // Enable scripts in the webview (NOTE! NOT SECURE)
                 enableScripts: true,
@@ -122,9 +122,8 @@ export function activate(context: vscode.ExtensionContext) {
             }
             );
 
-            // Having to pass in each media file to the webview is problematic
-            // TODO: restructure to be able to import from the filesystem in webviewHtml directly
-            currentPanel.webview.html = WebviewHtml.getWebviewContent(twitterLogoSrc);
+            // Pass the mediaPath for the Webview to the Webview
+            currentPanel.webview.html = WebviewHtml.getWebviewContent(mediaPath);
 
             // Reset when current panel is closed
             currentPanel.onDidDispose(() => {
