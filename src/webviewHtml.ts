@@ -12,15 +12,24 @@ import * as path from 'path';
 export namespace WebviewHtml {
 
     export function getWebviewContent(mediaPath: string){
-    // All media resources are based on the past mediaPath
+    // All media resources are based on the past mediaPath and authorized in extension.ts
     // Note that all will have to be appended with '/' and the file name
     // Then processed into vscode-resource before being valid
 
     // Initialize media resources
+    // External CSS file
+    const cssFile = vscode.Uri.file(path.join(mediaPath, '/style.css'));
+    const cssFileSrc = cssFile.with({scheme: 'vscode-resource'}).toString();
+
+    // External Javascript file
+    const scriptsFile = vscode.Uri.file(path.join(mediaPath, '/scripts.js'));
+    const scriptsJSSrc = scriptsFile.with({scheme: 'vscode-resource'}).toString();
+
+    // Twitter logo
     const twitterLogo = vscode.Uri.file(path.join(mediaPath, '/Twitter_Logo_Blue.svg'));
     const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
 
-    // TODO link the javascript & css to an external file
+    // TODO link the javascript to an external file
 
         return `<!DOCTYPE html>
         <html lang="en">
@@ -28,67 +37,13 @@ export namespace WebviewHtml {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Twitter Talk</title>
-            <!-- TODO: Change to external file. This doesn't work, embedding styles for now 
-            <link rel="stylesheet" href="./style.css"> -->
-            <style>
-                h1 {
-                    color: blue;
-                    text-align: center;
-                }
-                h2 {
-                    text-align: center;
-                    margin: 0px;
-                    padding: 10px;
-                }
-                img {
-                    width: 80%;
-                    display: block;
-                    margin-left: auto;
-                    margin-right: auto;
-                }
-                div.box {
-                    width: 40%;
-                    margin: 0 auto;
-                    padding: 10px;
-                    border: 1px solid #38A1F3;
-                }
-                textarea {
-                    width: 100%;
-                    display: inline-block;
-                    margin: 0px;
-                    padding: 10px;
-                    box-sizing: border-box;
-                }
-                input {
-                    width: 100%;
-                    font-size: 150%; 
-                    display: inline-block;
-                    background-color: #38A1F3;
-                    border: none;
-                    padding: 10px;
-                    box-sizing: border-box;                
-                }
-                button {
-                    width: 100%;
-                    font-size: 150%; 
-                    display: inline-block;
-                    background-color: #38A1F3;
-                    border: none;
-                    padding: 10px; margin-top: 2px; margin-bottom: 2px;
-                    box-sizing: border-box;
-                }
-                p {
-                    width: 40%;
-                    margin: 0 auto;
-                    padding: 10px;
-                }
-            </style>
+            <!-- External CSS File -->
+            <link rel="stylesheet" type="text/css" href="${cssFileSrc}">
 
-            <!-- Not working just yet, trying to get external scripts to load
-            <script src="./scripts.js" type="text/javascript"></script>
-            -->
+            <!-- External Javascripts -->
+            <script src="${scriptsJSSrc}" type="text/javascript"></script>
 
-            <!-- TODO: A more sane content security policy, but it breaks embedded scripts
+            <!-- TODO: A more sane content security policy, this one breaks embedded scripts
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src vscode-resource:; style-src vscode-resource:;">
             -->
 
@@ -110,47 +65,6 @@ export namespace WebviewHtml {
 
             <p id="message-text">No message entered</p>
         
-            <script language="javascript">
-            // PREVIEW MESSAGE TEXT
-            const vscode = acquireVsCodeApi();
-            const text = document.getElementById('message-text');
-            //TODO sanitize user-entered content
-            //TODO limit the length to 140 characters, though it is handled in tweetHandlers
-            function submit(){
-                text.textContent = document.getElementById("message").value;
-                vscode.postMessage({command: 'message', text: text.textContent});
-            }
-            </script>
-
-            <script language="javascript">
-            // SEND MESSAGE FROM WEBVIEW TO EXTENSION
-
-            </script>
-
-            <script language="javascript">
-            // BACKGROUND COLOR CHANGER - MESSAGE SENT FROM EXTENSION
-            // In this case the refactor test is sending a message from the extension to the webview
-            //  and set the background color to grey
-
-            // Handle the message sent from extension to webview inside the window
-            window.addEventListener('message', event => {
-                const message = event.data // JSON data sent
-                switch(message.command){
-                    case 'refactor':
-                        let darkBlueColor = "#000033";
-                        let bgColor = document.getElementById("tweet-box").style.backgroundColor;
-                        if(bgColor == darkBlueColor)
-                        {
-                            //TODO: fix this so it works. Currently not being set transparent, or not comparing properly
-                            document.getElementById("tweet-box").style.backgroundColor = "transparent";
-                        } else {
-                            document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
-                        }
-                        break;
-                }
-            })
-            </script>
-
         </body>
         
         </html>`;

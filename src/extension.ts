@@ -5,8 +5,9 @@ import * as path from 'path';
 
 /* -------------------------------------------------------------------------------------
  * Twitter-Talk: Visual Studio Code Extension in typescript and Node.js which sends tweets.
- * coder: Anya talisancreations@gmail.com   date: 11.18.18  twitter: @talicode
- * github: https://github.com/Talicode/twitter-talk
+ * coder: Anya                                                      last updated: 11.23.18
+ * email: talisancreations@gmail.com                                 posted date: 11.18.18
+ * github: https://github.com/Talicode/twitter-talk            tested at twitter @talicode
  * 
  * There are three commands
  * 
@@ -65,21 +66,18 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error).
     // This line of code will only be executed once when your extension is activated.
-    console.log('Congratulations, your extension "Twitter Talk" is now active!');
+    console.log('Extension "Twitter Talk" is now active.');
 
     // Path to media resources for the HTML Webview on disk
     const mediaPath = path.join(context.extensionPath, 'media');
-    console.log('In extension.ts mediaPath is:' + mediaPath);
-
-    const twitterLogo = vscode.Uri.file(path.join(context.extensionPath, 'media', 'Twitter_Logo_Blue.svg'));
-    const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
-    console.log('In Extension.ts: ' + twitterLogoSrc);
 
     // Set up a twitter client
     // Learning from this resource https://github.com/austin-----/vscode-twitter
     // But trying to build simply from this one https://codeburst.io/build-a-simple-twitter-bot-with-node-js-in-just-38-lines-of-code-ed92db9eb078
     // This was the most helpful https://dzone.com/articles/how-to-use-twitter-api-using-nodejs
    var T = new Twitter(config);
+
+   //TODO check why this doesn't tweet if twitterTalk.start has not been activated, was working before
     
     // COMMAND: RANDOM TEST TWEET
     let disposable = vscode.commands.registerCommand('twitterTalk.test', () => {
@@ -143,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     // COMMAND: MESSAGE FROM EXTENSION TO WEBVIEW
-    // Pass message from an extension to a webview to refactor (reduce the count)
+    // Pass message from an extension to a webview to refactor (change background color)
     context.subscriptions.push(vscode.commands.registerCommand('twitterTalk.refactor', () => {
         if(!currentPanel){
             return;
