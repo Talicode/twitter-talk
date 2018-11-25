@@ -2,11 +2,14 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 /* WEBVIEW METHOD
- * There is only one function that is a string html file setting up the webview
- * TODO: restructure so that the getWebviewContent function takes no arguments,
- *   break the css/script/images into their own files and import directly
- *   having to pass it in the function is cumbersome for any webview that is more complicated
- *  Implement a sane access policy
+ * There is only one function that returns a string html file setting up the webview
+ * The variable passed to the function is the string representation of the path to media resources
+ * including css, images, and additional scripts. This folder is included in the access policy of
+ * extension.ts
+ * 
+ * If additional locations are required, extension.ts webview configuration will need to be updated
+ * 
+ * TODO: Add a live character count for the contents of the textbox
  */
 
 export namespace WebviewHtml {

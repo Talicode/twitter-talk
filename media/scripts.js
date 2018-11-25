@@ -3,7 +3,6 @@ const vscode = acquireVsCodeApi();
 
 // ------------- Form submit function (tweet message capture) -------------------
 //TODO sanitize user-entered content
-//TODO limit the length to 140 characters, though it is handled in tweetHandlers
 function submit(){
     // Grab the message from the text box
     const text = document.getElementById('message-text');
@@ -17,20 +16,24 @@ function submit(){
 // In this case the sending a message from the extension to the webview and set the background color to blue
 
 // Handle message(s) sent from extension to webview inside the window
+//'Refactor' Required for keeping track of background color 
+//  because of browser color return compatibility issues making comparing colors directly difficult
+let isColored = false;
 window.addEventListener('message', event => {
     const message = event.data // JSON data sent
     switch(message.command){
         case 'refactor':
             let darkBlueColor = "#000033";
-            let darkGreyColor = "#333333";
+            let darkGreyColor = "#444444";
             debugger;
             let bgColor = document.getElementById("tweet-box").style.backgroundColor;
-            if(rgbMatches(bgColor,darkBlueColor))
+            if(isColored)
             {
-                //TODO: fix this so it works. Currently not being set transparent, or not comparing properly
-                document.getElementById("tweet-box").style.backgroundColor = darkGreyColor;
+                document.getElementById("tweet-box").style.backgroundColor = 'transparent';
+                isColored = false;
             } else {
                 document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
+                isColored = true;
             }
             break;
     }

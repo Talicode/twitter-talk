@@ -19,9 +19,8 @@ import * as path from 'path';
  *   Creates a random string of (3-7) words and tweets the string
  * 
  * Twitter Talk: Change background color as a message passing test
- *   Activate command to change the background of the tweet box as a test of passing
+ *   Activate command to change the background of the tweet box (toggle) as a test of passing
  *   a message from the extension to the webview
- *   TODO: Make the command toggle between colored and transparent
  *   
  * -------------------------------------------------------------------------------------
  * Planned Improvements
