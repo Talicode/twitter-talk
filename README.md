@@ -10,9 +10,18 @@ Describe specific features of your extension including screenshots of your exten
 ![Commands](TwitterTalk-Commands.jpg)
 
 There are three commands:
-Twitter Talk: Enter a new tweet!
-Twitter Talk: Send a random length test tweet
-Twitter Talk: Change background color as a message passing test
+
+###Twitter Talk: Enter a new tweet!
+
+Starts the application and a webview allowing the user to enter a new message and tweet it
+
+###Twitter Talk: Send a random length test tweet
+
+If the Webview is already visible (and thus the extension is running) sends a random tweet of 3-7 words from an internal array of words. This allows testing tweet functionality without running into Twitter's restriction on duplicate tweets.
+
+###Twitter Talk: Change background color as a message passing test
+
+With the Webview visible, will toggle the background color of the box to blue and back to transparent.
 
 ## Requirements
 
