@@ -4,10 +4,7 @@ Extension "twitter-talk" for Visual Studio Code written in Typescript utilizing 
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
 ![Webview](TwitterTalk-Webview.jpg)
-![Commands](TwitterTalk-Commands.jpg)
 
 There are three commands:
 
@@ -22,6 +19,8 @@ If the Webview is already visible (and thus the extension is running) sends a ra
 ### Twitter Talk: Change background color as a message passing test
 
 With the Webview visible, will toggle the background color of the box to blue and back to transparent.
+
+![Commands](TwitterTalk-Commands.jpg)
 
 ## Requirements
 
