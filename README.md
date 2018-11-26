@@ -1,6 +1,6 @@
 # twitter-talk README
 
-This is the README for your extension "twitter-talk". After writing up a brief description, we recommend including the following sections.
+Extension "twitter-talk" for Visual Studio Code written in Typescript utilizing Node.js on the backend with HTML/CSS/Javascript on the front-end loading in a Webview. This extension utilizes saved credentials in an external .json config file to send out test tweets to the twitter profile associated with the credentials through Twitter's API.
 
 ## Features
 
@@ -8,58 +8,28 @@ Describe specific features of your extension including screenshots of your exten
 
 For example if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
+\!\[Webview\]\(TwitterTalk-Webview.jpg\)
+\!\[Commands\]\(TwitterTalk-Commands.jpg\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+There are three commands:
+Twitter Talk: Enter a new tweet!
+Twitter Talk: Send a random length test tweet
+Twitter Talk: Change background color as a message passing test
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+src/config.json is required to connect to a twitter account. The requirements for config.json is described in config.ts and are the standard keys offered by the Twitter API. When you have created the file, put it in the src folder.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+"Twitter Talk: Send a random length test tweet" command does not function unless "Twitter Talk: Enter a new tweet!" has been called, initializing the extension.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release of the extension.
 
 ### 1.0.1
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Restructured files to use external style.css and scripts.js for client side formatting and scripting
