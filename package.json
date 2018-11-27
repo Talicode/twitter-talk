@@ -2,7 +2,7 @@
     "name": "twitter-talk",
     "displayName": "twitter_talk",
     "description": "Simple extension that posts a tweet to twitter.",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "talicode",
     "private": true,
     "engines": {

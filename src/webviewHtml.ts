@@ -58,8 +58,8 @@ export namespace WebviewHtml {
                 <img src="${twitterLogoSrc}" width="300" />
 
                 <!-- Form starts here -->
-                <h3>Message:</h3>
-                <textarea id="message" placeholder="140 characters or fewer"></textarea>
+                <h4><span id="count">140 characters left</span></h4>
+                <textarea id="message" onInput="trackStringLength()" placeholder="Enter your tweet here"></textarea>
                 <button onClick="submit()">Send Tweet!</button>
 
             </div>

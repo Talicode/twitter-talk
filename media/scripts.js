@@ -39,6 +39,20 @@ window.addEventListener('message', event => {
     }
 })
 
+// Count the length of the message string and update the live count
+function trackStringLength() {
+    // Get the current state of the message string and its length
+    let workingString = document.getElementById("message").value;
+    let workingLength = workingString.length;
+    // Check for negative value and change color if the message is too long
+    if((140 - workingLength) > 0) {
+        document.getElementById("count").style.color = '#d4d4d4';
+    } else {
+        document.getElementById("count").style.color = 'red';
+    }
+    document.getElementById("count").textContent = (140 - workingLength) + ' characters left';
+}
+
 // Color handling functions
 function rgbExtract(s) {
     var match = /^\s*rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\)\s*$/.exec(s);

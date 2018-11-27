@@ -39,3 +39,7 @@ Initial release of the extension.
 ### 1.0.1
 
 Restructured files to use external style.css and scripts.js for client side formatting and scripting
+
+### 1.0.2
+
+Added a counter to check the length of the entered message and display the current count to the user
