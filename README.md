@@ -4,7 +4,7 @@ Extension "twitter-talk" for Visual Studio Code written in Typescript utilizing 
 
 ## Features
 
-![Webview](TwitterTalk-Webview.jpg)
+![Webview](TwitterTalk-Webview.png)
 
 There are three commands:
 
