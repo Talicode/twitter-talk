@@ -43,3 +43,5 @@ Restructured files to use external style.css and scripts.js for client side form
 ### 1.0.2
 
 Added a counter to check the length of the entered message and display the current count to the user
+Added coloring of the counter message when the count becomes zero or negative
+Improved the path formation and passing between extension.ts and webviewHtml.ts to be more intuitive

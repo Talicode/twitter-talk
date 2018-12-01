@@ -23,15 +23,20 @@ window.addEventListener('message', event => {
     const message = event.data // JSON data sent
     switch(message.command){
         case 'refactor':
+            // Because of how different browsers may return color data, a boolean is used to store the
+            // current box color. If any other method changes it, this will break the toggle
             let darkBlueColor = "#000033";
             let darkGreyColor = "#444444";
             debugger;
+            // Get the current background color of the tweetbox
             let bgColor = document.getElementById("tweet-box").style.backgroundColor;
             if(isColored)
             {
+                // If it's colored, set it to transparent
                 document.getElementById("tweet-box").style.backgroundColor = 'transparent';
                 isColored = false;
             } else {
+                // If it's transparent, set it to dark blue
                 document.getElementById("tweet-box").style.backgroundColor = darkBlueColor;
                 isColored = true;
             }
@@ -46,14 +51,17 @@ function trackStringLength() {
     let workingLength = workingString.length;
     // Check for negative value and change color if the message is too long
     if((140 - workingLength) > 0) {
-        document.getElementById("count").style.color = '#d4d4d4';
+        // Return control of the color on the counter text to the stylesheet
+        document.getElementById("count").style.color = '';
     } else {
+        // Set the counter text red if there aren't any characters left
         document.getElementById("count").style.color = 'red';
     }
+    // Write the string to count
     document.getElementById("count").textContent = (140 - workingLength) + ' characters left';
 }
 
-// Color handling functions
+// Color handling functions - not currently used, but was attempted for comparing colors returned from the browser
 function rgbExtract(s) {
     var match = /^\s*rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\)\s*$/.exec(s);
     if (match === null) {

@@ -16,23 +16,22 @@ export namespace WebviewHtml {
 
     export function getWebviewContent(mediaPath: string){
     // All media resources are based on the past mediaPath and authorized in extension.ts
-    // Note that all will have to be appended with '/' and the file name
+    // All subsequent resources will need to be specified by filename here
     // Then processed into vscode-resource before being valid
+    // The trailing '/' in the media path needs to already be built into the passed string
 
     // Initialize media resources
     // External CSS file
-    const cssFile = vscode.Uri.file(path.join(mediaPath, '/style.css'));
+    const cssFile = vscode.Uri.file(path.join(mediaPath, 'style.css'));
     const cssFileSrc = cssFile.with({scheme: 'vscode-resource'}).toString();
 
     // External Javascript file
-    const scriptsFile = vscode.Uri.file(path.join(mediaPath, '/scripts.js'));
+    const scriptsFile = vscode.Uri.file(path.join(mediaPath, 'scripts.js'));
     const scriptsJSSrc = scriptsFile.with({scheme: 'vscode-resource'}).toString();
 
     // Twitter logo
-    const twitterLogo = vscode.Uri.file(path.join(mediaPath, '/Twitter_Logo_Blue.svg'));
+    const twitterLogo = vscode.Uri.file(path.join(mediaPath, 'Twitter_Logo_Blue.svg'));
     const twitterLogoSrc =  twitterLogo.with({scheme: 'vscode-resource'}).toString();
-
-    // TODO link the javascript to an external file
 
         return `<!DOCTYPE html>
         <html lang="en">

@@ -68,6 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Extension "Twitter Talk" is now active.');
 
     // Path to media resources for the HTML Webview on disk
+    // NOTE: This path needs to include the trailing slash
     const mediaPath = path.join(context.extensionPath, 'media');
 
     // Set up a twitter client
@@ -120,7 +121,10 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             // Pass the mediaPath for the Webview to the Webview
-            currentPanel.webview.html = WebviewHtml.getWebviewContent(mediaPath);
+            // It is important to add the folder designation '/' here before passing it onto WebviewHtml
+            // This will allow all media in the folder to be accessed without needing to remember to add
+            // the '/' for each file.
+            currentPanel.webview.html = WebviewHtml.getWebviewContent(path.join(mediaPath, '/'));
 
             // Reset when current panel is closed
             currentPanel.onDidDispose(() => {
